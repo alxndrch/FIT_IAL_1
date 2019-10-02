@@ -110,8 +110,25 @@ void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 */
 char* infix2postfix (const char* infExpr) {
 
-  solved = 0;                        /* V případě řešení smažte tento řádek! */
-  return NULL;                /* V případě řešení můžete smazat tento řádek. */
+    char* postExpr = (char*) malloc(MAX_LEN);
+    tStack* s = (tStack*) malloc(sizeof(tStack));
+    if(!postExpr || !s) return NULL;
+
+    char* postExprPos = postExpr;
+    int postExprLen = 0;
+    char op[] = {"+","-","*","/"};
+    char par[] = {"(",")"};
+    char eq = "=";
+
+    for(int i=0;i<strlen(infExpr);i++){
+	if(infExpr[i] == "+" || infExpr[i] == "-" || infExpr[i] == "*" || infExpr[i] == "/")
+	  doOperation(s,infExpr[i],postExprPos,&postExprLen);
+	else if(infExpr[i] == "(") stackPush(s,infExpr[i]);
+	else if(infExprt[i] == ")") untilLeftPar(s,postExprPos,&postExprLen);
+	else if(infExpr[i] == "=") break;
+    }
+
+    return postExpr;
 }
 
 /* Konec c204.c */
