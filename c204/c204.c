@@ -48,6 +48,18 @@ int solved;
 */
 void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
 
+    
+    char top;
+    stackTop(s,&top);
+
+    while(top != '('){
+	postExpr[*(postLen++)] = top;
+	stackPop(s);
+	stackTop(s,&top);
+    }
+
+    stackPop(s);
+
 }
 
 /*
@@ -62,6 +74,31 @@ void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
 */
 void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 
+    char top;
+    stackTop(s,&top);
+
+    int priorityC = 0;
+    int priorityTop = 0;
+
+    if(top == '+' || top == '-') priorityTop = 1;
+    else if(top == '*' || top == '/') priorityTop = 2;
+
+    if(c == '+' || c == '-') priorityC = 1;
+    else if(c == '*' || c == '/') priorityC = 2;
+
+  
+    if(priorityC == priorityTop){
+	postExpr[*(postLen++)] = top;
+	stackPop(s);
+    }else if(priorityC > priorityTop){
+	while(!stackEmpty(s) || top != '('){
+	    postExpr[*(postLen++)] = top;
+	    stackPop(s);
+	    stackTop(s,&top);
+	}
+    }
+
+    stackPush(s,c);
 }
 
 /* 
@@ -114,18 +151,17 @@ char* infix2postfix (const char* infExpr) {
     tStack* s = (tStack*) malloc(sizeof(tStack));
     if(!postExpr || !s) return NULL;
 
+    stackInit(s);
     char* postExprPos = postExpr;
-    int postExprLen = 0;
-    char op[] = {"+","-","*","/"};
-    char par[] = {"(",")"};
-    char eq = "=";
+    unsigned int postExprLen = 0;
 
-    for(int i=0;i<strlen(infExpr);i++){
-	if(infExpr[i] == "+" || infExpr[i] == "-" || infExpr[i] == "*" || infExpr[i] == "/")
+    for(int i=0;infExpr[i]!='\0';i++){
+	if(infExpr[i] == '+' || infExpr[i] == '-' || infExpr[i] == '*' || infExpr[i] == '/')
 	  doOperation(s,infExpr[i],postExprPos,&postExprLen);
-	else if(infExpr[i] == "(") stackPush(s,infExpr[i]);
-	else if(infExprt[i] == ")") untilLeftPar(s,postExprPos,&postExprLen);
-	else if(infExpr[i] == "=") break;
+	else if(infExpr[i] == '(') stackPush(s,infExpr[i]);
+	else if(infExpr[i] == ')') untilLeftPar(s,postExprPos,&postExprLen);
+	else if(infExpr[i] == '=') break;
+	else postExprPos[postExprLen++] = infExpr[i];
     }
 
     return postExpr;
