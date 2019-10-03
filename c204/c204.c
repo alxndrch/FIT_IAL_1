@@ -52,7 +52,7 @@ void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
     char top;
     stackTop(s,&top);
 
-    while(top != '('){
+    while(top != '(' && *postLen < MAX_LEN){
 	postExpr[*(postLen++)] = top;
 	stackPop(s);
 	stackTop(s,&top);
@@ -74,6 +74,9 @@ void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
 */
 void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 
+    if(!stackEmpty(s)){
+    
+
     char top;
     stackTop(s,&top);
 
@@ -88,14 +91,18 @@ void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 
   
     if(priorityC == priorityTop){
-	postExpr[*(postLen++)] = top;
-	stackPop(s);
+	if(*postLen < MAX_LEN){
+	    postExpr[*(postLen++)] = top;
+	    stackPop(s);
+	}
     }else if(priorityC > priorityTop){
-	while(!stackEmpty(s) || top != '('){
+	while((!stackEmpty(s) || top != '(') && *postLen < MAX_LEN ){
 	    postExpr[*(postLen++)] = top;
 	    stackPop(s);
 	    stackTop(s,&top);
 	}
+    }
+
     }
 
     stackPush(s,c);
@@ -152,16 +159,14 @@ char* infix2postfix (const char* infExpr) {
     if(!postExpr || !s) return NULL;
 
     stackInit(s);
-    char* postExprPos = postExpr;
     unsigned int postExprLen = 0;
 
     for(int i=0;infExpr[i]!='\0';i++){
 	if(infExpr[i] == '+' || infExpr[i] == '-' || infExpr[i] == '*' || infExpr[i] == '/')
-	  doOperation(s,infExpr[i],postExprPos,&postExprLen);
+	  doOperation(s,infExpr[i],postExpr,&postExprLen);
 	else if(infExpr[i] == '(') stackPush(s,infExpr[i]);
-	else if(infExpr[i] == ')') untilLeftPar(s,postExprPos,&postExprLen);
-	else if(infExpr[i] == '=') break;
-	else postExprPos[postExprLen++] = infExpr[i];
+	else if(infExpr[i] == ')') untilLeftPar(s,postExpr,&postExprLen);
+	else postExpr[postExprLen++] = infExpr[i];
     }
 
     return postExpr;
