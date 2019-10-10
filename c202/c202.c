@@ -84,7 +84,7 @@ int stackFull ( const tStack* s ) {
 **
 ** Funkci implementujte jako jediný příkaz.
 */
-    return s->top == 19 ? 1 : 0;
+    return s->top == STACK_SIZE-1 ? 1 : 0;
 
 }
 
