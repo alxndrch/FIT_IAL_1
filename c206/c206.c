@@ -166,7 +166,7 @@ void DLLast (tDLList *L) {
 ** aniž byste testovali, zda je seznam L prázdný.
 **/
 
-    L->Act = L->First;
+    L->Act = L->Last;
 
 }
 
@@ -204,9 +204,12 @@ void DLDeleteFirst (tDLList *L) {
     
 	if(L->First == L->Act) L->Act = NULL;
 
-	L->First = L->First->rptr;
-
-	if(L->First == NULL) L->Last = NULL;
+	if(L->First == L->Last){
+	    DLInitList(L);
+	}else{
+	    L->First = L->First->rptr;
+	    L->First->lptr = NULL;
+	}
 
 	free(temp);
     }
@@ -225,9 +228,12 @@ void DLDeleteLast (tDLList *L) {
 
 	if(L->Last == L->Act) L->Act = NULL;
     
-	L->Last = L->Last->lptr;
-
-	if(L->Last == NULL) L->First = NULL;
+	if(L->Last == L->First){
+	    DLInitList(L);
+	}else{
+	    L->Last = L->Last->lptr;
+	    L->Last->rptr = NULL;
+	}
 
 	free(temp);
     }
@@ -268,7 +274,7 @@ void DLPreDelete (tDLList *L) {
 	L->Act->lptr = del->lptr;
 
 	if(del == L->First) L->First = L->Act;
-	del->lptr->rptr = L->Act; // [del->lptr]--->L->Act
+	else del->lptr->rptr = L->Act; // [del->lptr]--->L->Act
     
 	free(del);
     }

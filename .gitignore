@@ -1,10 +1,10 @@
-i*
-!.gitignore
+!.gitignore 
 
+*.o
 *.swp
-c202
-c204
-c206
+*.swo
+*.swn
+*.txt
 
 c202-test
 c204-test
