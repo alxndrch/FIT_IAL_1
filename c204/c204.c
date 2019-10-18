@@ -52,7 +52,8 @@ void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
     char top;
     stackTop(s,&top);
 
-    while(top != '('){
+
+    while(top != '('){ //vypsani obsahu zasobniku az po levou zavorku
 	postExpr[(*postLen)++] = top;
 	stackPop(s);
 	stackTop(s,&top);
@@ -74,9 +75,10 @@ void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
 */
 void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 
-    if(!stackEmpty(s)){  
-	
-	char top;
+    char top;
+    
+    while(!stackEmpty(s)){
+
 	stackTop(s,&top);
 
 	int priorityC = 0; // prioritu precteneho operandu
@@ -88,22 +90,18 @@ void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 	if(c == '+' || c == '-') priorityC = 1;
 	else if(c == '*' || c == '/') priorityC = 2;
 
-  
 	if(priorityC == priorityTop || priorityC < priorityTop){
-		postExpr[(*postLen)++] = top;
-		stackPop(s);
-	}else if(priorityC > priorityTop){
-	    while((!stackEmpty(s) && top != '(')){
-		postExpr[(*postLen)++] = top;
-		stackPop(s);
-		stackTop(s,&top);
-	    }
+	    postExpr[(*postLen)++] = top;
+	    stackPop(s);
+	}else if(priorityC > priorityTop || top == '('){
+	    stackPush(s,c);
+	    return;
 	}
 
     }
 
     stackPush(s,c);
-
+    
 }
 
 /* 
@@ -175,9 +173,10 @@ char* infix2postfix (const char* infExpr) {
 	    postExpr[postExprLen++] = infExpr[i];
 	}
 	else postExpr[postExprLen++] = infExpr[i]; //zpracovani operandu
+
     }
     
-    postExpr[postExprLen] = '\0';
+    postExpr[postExprLen] = '\0'; //ukonceni retezce
 
     return postExpr;
 }
