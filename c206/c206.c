@@ -96,7 +96,7 @@ void DLDisposeList (tDLList *L) {
 
     free(L->Act);
 
-    DLInitList(L);
+    DLInitList(L); //uvedeni seznamu do puvodniho stavu
 
 }
 
@@ -176,7 +176,7 @@ void DLCopyFirst (tDLList *L, int *val) {
 ** Pokud je seznam L prázdný, volá funkci DLError().
 **/
 
-    if(L == NULL) DLError();
+    if(L == NULL || L->First == NULL) DLError();
     else *val = L->First->data;
     
 }
@@ -187,7 +187,7 @@ void DLCopyLast (tDLList *L, int *val) {
 ** Pokud je seznam L prázdný, volá funkci DLError().
 **/
 	
-    if(L == NULL) DLError();
+    if(L == NULL || L->Last == NULL) DLError();
     else *val = L->Last->data;
 
 }
@@ -205,7 +205,7 @@ void DLDeleteFirst (tDLList *L) {
 	if(L->First == L->Act) L->Act = NULL;
 
 	if(L->First == L->Last){
-	    DLInitList(L);
+	    DLInitList(L); //pokud je v seznamu jeden prvek, seznam se smaze
 	}else{
 	    L->First = L->First->rptr;
 	    L->First->lptr = NULL;
@@ -229,7 +229,7 @@ void DLDeleteLast (tDLList *L) {
 	if(L->Last == L->Act) L->Act = NULL;
     
 	if(L->Last == L->First){
-	    DLInitList(L);
+	    DLInitList(L); //pokud je v seznamu jeden prvek, seznam se zmaze
 	}else{
 	    L->Last = L->Last->lptr;
 	    L->Last->rptr = NULL;
