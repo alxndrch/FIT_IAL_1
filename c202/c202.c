@@ -61,7 +61,7 @@ void stackInit ( tStack* s ) {
 ** předpokládejte, že tato situace nenastane. 
 */
     if(!s) stackError(SERR_INIT);
-    else s->top = -1;
+    else s->top = -1; // inicializace na prazdny zasobnik
 
 }
 
@@ -71,7 +71,7 @@ int stackEmpty ( const tStack* s ) {
 ** Funkci implementujte jako jediný příkaz. Vyvarujte se zejména konstrukce
 ** typu "if ( true ) b=true else b=false".
 */
-    return s->top == -1 ? 1 : 0; 
+    return s->top == -1 ? 1 : 0; // top == -1 -> prazdny zasobnik 
 
 }
 
@@ -84,7 +84,7 @@ int stackFull ( const tStack* s ) {
 **
 ** Funkci implementujte jako jediný příkaz.
 */
-    return s->top == STACK_SIZE-1 ? 1 : 0;
+    return s->top == STACK_SIZE-1 ? 1 : 0; // STACK_SIZE-1 nejvyssi mozny index zasobniku; pocitani od 0
 
 }
 
@@ -99,7 +99,7 @@ void stackTop ( const tStack* s, char* c ) {
 ** funkci stackEmpty.
 */
     if(stackEmpty(s)) stackError(SERR_TOP);
-    else *c = s->arr[s->top];
+    else *c = s->arr[s->top]; // pres c vracime vrchol zasobniku
 
 }
 
@@ -116,7 +116,7 @@ void stackPop ( tStack* s ) {
 ** jednoduchost neděláme.
 ** 
 */
-    if(!stackEmpty(s)) s->top--;
+    if(!stackEmpty(s)) s->top--; // index vrcholu zasobniku se snizi o 1
 
 }
 
@@ -130,7 +130,7 @@ void stackPush ( tStack* s, char c ) {
 ** funkci stackFull.
 */
     if(stackFull(s)) stackError(SERR_PUSH);
-    else s->arr[++s->top] = c;
+    else s->arr[++s->top] = c; // c novy prvek na vrcholu 
 
 }
 

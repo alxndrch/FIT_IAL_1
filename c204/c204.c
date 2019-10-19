@@ -48,19 +48,21 @@ int solved;
 */
 void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
 
-    
-    char top;
-    stackTop(s,&top);
-
-
-    while(top != '('){ //vypsani obsahu zasobniku az po levou zavorku
-	postExpr[(*postLen)++] = top;
-	stackPop(s);
+    if(!stackEmpty(s)){ // vykonava se pouze pokud zasobnik neni prazdny
+	char top; // pomocna promenna
 	stackTop(s,&top);
-    }
 
-    stackPop(s);
+	while(top != '(' && !stackEmpty(s)){
+	    // ulozeni a odsraneni obsahu zasobniku az po levou zavorku, 
+	    // leva zavorka se v cyklu neodstrani
+	
+	    postExpr[(*postLen)++] = top; // ulozeni
+	    stackPop(s); // odstraneni
+	    stackTop(s,&top); // nacteni noveho vrcholu
+	}
 
+	if(!stackEmpty(s)) stackPop(s); // odstraneni leve zavorky
+    }   
 }
 
 /*
@@ -75,32 +77,39 @@ void untilLeftPar ( tStack* s, char* postExpr, unsigned* postLen ) {
 */
 void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 
-    char top;
+    char top; // pomocna promenna
     
-    while(!stackEmpty(s)){
+    while(!stackEmpty(s)){ // vykonava se dokud neni zasobnik prazdny nebo break
 
 	stackTop(s,&top);
 
-	int priorityC = 0; // prioritu precteneho operandu
-	int priorityTop = 0; //priorita operandu z vrcholu zasobniku 
+	int priorityC = 0; // prioritu precteneho operatoru
+	int priorityTop = 0; // priorita operatoru z vrcholu zasobniku 
 
+	// nastaveni priority operatoru
 	if(top == '+' || top == '-') priorityTop = 1;
 	else if(top == '*' || top == '/') priorityTop = 2;
 
 	if(c == '+' || c == '-') priorityC = 1;
 	else if(c == '*' || c == '/') priorityC = 2;
 
+
 	if(priorityC == priorityTop || priorityC < priorityTop){
-	    postExpr[(*postLen)++] = top;
-	    stackPop(s);
+	    // pokud ma parametr c stejnou nebo
+	    // nizsi prioritu nez vrchol zasobniku 
+
+	    postExpr[(*postLen)++] = top; // ulozeni vrcholu do postfix retezce
+	    stackPop(s); // odstraneni operatoru ze zasobniku 
 	}else if(priorityC > priorityTop || top == '('){
-	    stackPush(s,c);
-	    return;
+	    // pokud ma parametr c vyssi prioritu nez vrchol zasobniku nebo
+	    // pokud je na vrcholu leva zavorka
+	    
+	    break;
 	}
 
     }
 
-    stackPush(s,c);
+    stackPush(s,c); // vlozeni operatoru na zasobnik
     
 }
 
@@ -150,33 +159,47 @@ void doOperation ( tStack* s, char c, char* postExpr, unsigned* postLen ) {
 */
 char* infix2postfix (const char* infExpr) {
 
-    char* postExpr = (char*) malloc(MAX_LEN); //alokace pameti pro postfix 
-    tStack* s = (tStack*) malloc(sizeof(tStack)); //alokace zasobniku
+    char* postExpr = (char*) malloc(MAX_LEN); // alokace pameti pro postfix 
     
-    if(!postExpr || !s) return NULL;
+    if(postExpr == NULL){
+	// nepodarena alokace retezce
+	return NULL;
+    }
+    
+    tStack* s = (tStack*) malloc(sizeof(tStack)); // alokace zasobniku
 
+    if(s == NULL){
+	// nepodarena alokace zasobniku
+	free(postExpr); // dealokace retezce
+	return NULL;
+    }
+    
     stackInit(s);
     unsigned int postExprLen = 0; //delka retezce postix
 
     for(int i=0;infExpr[i]!='\0';i++){
 	if(infExpr[i] == '+' || infExpr[i] == '-' || infExpr[i] == '*' || infExpr[i] == '/')
-	  doOperation(s,infExpr[i],postExpr,&postExprLen); //zpracovani operatoru
-	else if(infExpr[i] == '(') stackPush(s,infExpr[i]);
-	else if(infExpr[i] == ')') untilLeftPar(s,postExpr,&postExprLen);
+	    // zpracovani operatoru
+	    doOperation(s,infExpr[i],postExpr,&postExprLen);
+	else if(infExpr[i] == '(') stackPush(s,infExpr[i]); // zpracovani leve zavorky
+	else if(infExpr[i] == ')') untilLeftPar(s,postExpr,&postExprLen); // zpracovani prave zavorky
 	else if(infExpr[i] == '='){
+	    // zpracovani = 
 	    char top;
 	    while(!stackEmpty(s)){
+		// dokud se nevyprazni zasobnik
 		stackTop(s, &top);
 		postExpr[postExprLen++] = top;
 		stackPop(s);
 	    }
-	    postExpr[postExprLen++] = infExpr[i];
+	    postExpr[postExprLen++] = infExpr[i]; // ulozeni = na konec postfix retezce
 	}
-	else postExpr[postExprLen++] = infExpr[i]; //zpracovani operandu
-
+	else postExpr[postExprLen++] = infExpr[i]; // ulozeni operandu do posftix retezce
     }
     
-    postExpr[postExprLen] = '\0'; //ukonceni retezce
+    postExpr[postExprLen] = '\0'; // ukonceni retezce
+
+    free(s); // dealokace zasobniku
 
     return postExpr;
 }
